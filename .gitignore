@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environment
+.venv/
+
+# uv
+uv.lock
+
+# Hydra internal cache (regenerated from corpus mtimes)
+.cache/
+
+# User config (personal paths; ship config.example.toml instead)
+config.toml
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Caches
+.pytest_cache/
+.ruff_cache/
+
+# macOS
+.DS_Store
+
+# Logs
+/tmp/hydra.log
+
+# Claude Code / agent state
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
+.claude/worktrees/
+
+# Playwright
+ui_tests/node_modules/
+ui_tests/test-results/
+ui_tests/playwright-report/

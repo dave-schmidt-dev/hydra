@@ -1,0 +1,41 @@
+# Hydra configuration template.
+#
+# Copy this file to config.toml and edit. config.toml is gitignored.
+# All paths support ~ expansion.
+
+[defaults]
+recordings_dir = "~/recordings"
+web_port = 4125
+# Optional: where final reports get auto-copied.
+# Set to "" to disable.
+obsidian_export_dir = ""
+
+[defaults.corpus]
+# Default corpus paths. Per-session overrides via --corpus flag.
+paths = [
+    "~/recordings",
+]
+
+[defaults.watcher]
+cadence_seconds = 15
+window_seconds = 30
+auto_fire_threshold = 0.7
+suggest_floor = 0.4
+# "local-gemma" or "claude:claude-haiku-4-5"
+model = "local-gemma"
+
+[defaults.research]
+# "single" or "parallel_if_quota"
+deep_research_mode = "single"
+parallel_quota_threshold_pct = 30
+quick_concurrency = 3
+deep_concurrency = 2
+quick_timeout_s = 60
+deep_timeout_s = 300
+
+[defaults.indexer]
+# Skip files larger than this (bytes)
+max_file_bytes = 5_242_880
+
+# Optional provider overrides. ai_monitor handles defaults.
+[providers]
