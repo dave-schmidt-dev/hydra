@@ -120,3 +120,11 @@ Phase 3 verification: 173 tests pass in 11.55s; ruff/format/vulture clean.
 - **Notes:** Implementation had three shallow bugs caught by tests (fire-and-forget event emission, all-unsourced detector, lint nits). Fixed in place rather than dispatching a fix subagent.
 
 Phase 4 verification: 250 tests pass in 12.13s; ruff/format/vulture clean.
+
+## [2026-05-13] — Phase 5 implementation session
+
+### Task 5.1: BM25 indexer
+- **Status:** done
+- **Done when:** small fixture corpus → queryable index; second run with one touched file re-indexes only that file; all skip rules verified (.git, node_modules, .venv, __pycache__, .obsidian, .DS_Store, plus .pytest_cache/.ruff_cache/.mypy_cache defensive additions). ✅
+
+Phase 5 verification: 274 tests pass in 12.20s; ruff/format/vulture clean.
