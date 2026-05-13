@@ -44,6 +44,34 @@ Status key: pending | in progress | done | blocked
 - **Description:** Repo at `https://github.com/dave-schmidt-dev/hydra` initialized; initial commit pushed.
 
 ### Task 5: Implementation (separate session)
-- **Status:** pending
+- **Status:** in progress (Phase 1 done; Phase 2 next)
 - **Description:** Execute the refined task breakdown at `~/Documents/Projects/.plans/hydra/hydra-2026-05-13-tasks.md`. Phases 1 through 10. Start with Task 1.1 (state store schema + migrations).
 - **Blocked by:** Tasks 1, 2, 3, 4
+
+## [2026-05-13] — Phase 1 implementation session
+
+### Task 1.1: State store + migrations + audit writer
+- **Status:** done
+- **Done when:** `init_session_db` creates schema + sets `user_version`; v1→v2 migration test passes; BUSY retries verified; circuit-breaker fires on all-retries-exhausted; `questions.jsonl` row-for-row matches `questions` table. ✅
+
+### Task 1.2: Live-session probe
+- **Status:** done
+- **Done when:** every fixture case (live / post-rotation / abandoned / explicit / no-candidate) returns the correct result; `--wait-for-session` polls every 500ms; aborts cleanly when `session_end` arrives during the wait. ✅
+
+### Task 1.3: Transcript tailer
+- **Status:** done
+- **Done when:** all tailer tests pass; resume from a crashed run skips events with `elapsed <= last_event_elapsed`. ✅
+
+### Task 1.4: Subprocess runner infrastructure
+- **Status:** done
+- **Done when:** subprocess cleanup test passes; PGID registry visible via `snapshot()` for diagnostic accessors. ✅
+
+### Task 1.5: Recording-integrity autouse fixture
+- **Status:** done
+- **Done when:** fixture active across the whole suite from Phase 1 onward; allowlist starts minimal; intentional-violation test catches disallowed writes. ✅
+
+### Task 1.6: CLI verb skeletons
+- **Status:** done
+- **Done when:** `hydra start --session <fixture>` prints transcript events to stdout; each verb resolves to its handler (stubs return exit 1 + "not yet implemented"); session-end robustness tests pass. ✅
+
+Phase 1 verification: 100 tests pass in 7.16s; ruff/format/vulture clean.

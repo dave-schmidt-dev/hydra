@@ -55,6 +55,7 @@ pythonpath = ["."]
 asyncio_mode = "auto"
 markers = [
     "integration: tests that hit real LLM CLIs (slow, costs tokens)",
+    "allow_writes_anywhere: bypass the recording-integrity autouse fixture",
 ]
 addopts = "-m 'not integration'"
 
