@@ -55,9 +55,10 @@ pythonpath = ["."]
 asyncio_mode = "auto"
 markers = [
     "integration: tests that hit real LLM CLIs (slow, costs tokens)",
+    "e2e: end-to-end fixture-driven pipeline tests",
     "allow_writes_anywhere: bypass the recording-integrity autouse fixture",
 ]
-addopts = "-m 'not integration'"
+addopts = "-m 'not integration and not e2e'"
 
 [tool.uv]
 default-groups = ["dev"]

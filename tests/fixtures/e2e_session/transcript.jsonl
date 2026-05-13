@@ -1,0 +1,29 @@
+{"type": "session_start", "ts": "2026-05-13T10:00:00Z", "elapsed": 0.0, "text": ""}
+{"type": "transcript", "ts": "2026-05-13T10:00:02Z", "elapsed": 2.4, "text": "Thanks for joining the platform sync. Today's agenda covers reliability, retention, and the upcoming launch."}
+{"type": "transcript", "ts": "2026-05-13T10:00:08Z", "elapsed": 8.7, "text": "First, let's revisit the customer-facing reliability promises."}
+{"type": "transcript", "ts": "2026-05-13T10:00:14Z", "elapsed": 14.3, "text": "What's our SLA commitment to enterprise customers? I keep getting that question from sales and I'm not sure what's actually in the contract."}
+{"type": "transcript", "ts": "2026-05-13T10:00:22Z", "elapsed": 22.1, "text": "Right, and how do credits get calculated if we breach uptime two months running?"}
+{"type": "note", "ts": "2026-05-13T10:00:25Z", "elapsed": 25.0, "text": "Action: Priya to dig up the master agreement."}
+{"type": "transcript", "ts": "2026-05-13T10:00:30Z", "elapsed": 30.8, "text": "Moving on, retention policy for audio recordings is overdue for a decision."}
+{"type": "transcript", "ts": "2026-05-13T10:00:38Z", "elapsed": 38.6, "text": "We need to decide on the retention policy for audio recordings before the next compliance review."}
+{"type": "transcript", "ts": "2026-05-13T10:00:46Z", "elapsed": 46.2, "text": "Legal flagged 90 days as a possible minimum but I haven't seen the final memo."}
+{"type": "segment_boundary", "ts": "2026-05-13T10:00:50Z", "elapsed": 50.5, "text": "segment 1 ended"}
+{"type": "transcript", "ts": "2026-05-13T10:00:54Z", "elapsed": 54.9, "text": "Next, deployment timeline. The customer is asking when the new dashboard ships."}
+{"type": "transcript", "ts": "2026-05-13T10:01:02Z", "elapsed": 62.3, "text": "Has anyone confirmed the deployment date with the customer? I don't want to discover at go-live that nobody told them."}
+{"type": "transcript", "ts": "2026-05-13T10:01:09Z", "elapsed": 69.1, "text": "I think Marcus mentioned a soft target of June 1st but I'd like written confirmation."}
+{"type": "warning", "ts": "2026-05-13T10:01:12Z", "elapsed": 72.0, "text": "audio gain dropped briefly"}
+{"type": "transcript", "ts": "2026-05-13T10:01:16Z", "elapsed": 76.8, "text": "Let's pivot to the search backend conversation."}
+{"type": "transcript", "ts": "2026-05-13T10:01:23Z", "elapsed": 83.5, "text": "We're hitting the ceiling on Whoosh for the indexer. Latency on full-text queries is creeping up."}
+{"type": "transcript", "ts": "2026-05-13T10:01:31Z", "elapsed": 91.2, "text": "Should we adopt FTS5 over Whoosh for the indexer? It would mean a migration but the per-query latency wins look real."}
+{"type": "transcript", "ts": "2026-05-13T10:01:39Z", "elapsed": 99.4, "text": "FTS5 is also less code to maintain once the migration is done."}
+{"type": "transcript", "ts": "2026-05-13T10:01:46Z", "elapsed": 106.7, "text": "I'd want a small benchmark on a representative corpus before committing."}
+{"type": "note", "ts": "2026-05-13T10:01:50Z", "elapsed": 110.0, "text": "Action: Sam to draft a benchmark plan."}
+{"type": "transcript", "ts": "2026-05-13T10:01:55Z", "elapsed": 115.3, "text": "OK, last topic before we wrap. The roadmap for Q3 has a gap around on-call rotation."}
+{"type": "transcript", "ts": "2026-05-13T10:02:02Z", "elapsed": 122.6, "text": "Who is going to own the on-call rotation policy going forward? Right now it's nobody's job and that's a problem."}
+{"type": "transcript", "ts": "2026-05-13T10:02:10Z", "elapsed": 130.4, "text": "Probably needs to live with platform engineering, but the SRE lead should weigh in."}
+{"type": "transcript", "ts": "2026-05-13T10:02:18Z", "elapsed": 138.9, "text": "I'll put it on next week's leadership sync."}
+{"type": "transcript", "ts": "2026-05-13T10:02:25Z", "elapsed": 145.7, "text": "Anything else worth raising before we close?"}
+{"type": "transcript", "ts": "2026-05-13T10:02:32Z", "elapsed": 152.1, "text": "Quick reminder that the all-hands is Thursday at 10."}
+{"type": "transcript", "ts": "2026-05-13T10:02:39Z", "elapsed": 159.8, "text": "Great. Thanks everyone, I'll send notes by end of day."}
+{"type": "transcript", "ts": "2026-05-13T10:02:45Z", "elapsed": 165.4, "text": "Cheers, talk soon."}
+{"type": "session_end", "ts": "2026-05-13T10:02:50Z", "elapsed": 170.2, "text": ""}

@@ -151,3 +151,26 @@ Phase 6 verification: 303 Python tests + 6 Playwright specs all green; ruff/form
 - **Notes:** writes both report.md and report.generated.md; failure modes (timeout/nonzero/empty) preserve report.generated.md and write a placeholder report.md. Obsidian export with YAML frontmatter when configured.
 
 Phase 7 verification: 319 tests pass in 12.60s; ruff/format/vulture clean.
+
+## [2026-05-13] — Phase 8 implementation session
+
+### Task 8.1: Synthetic e2e session
+- **Status:** done
+- **Done when:** e2e test passes deterministically (verified across 5 re-runs); recording-integrity fixture stays green across the whole suite. ✅
+
+### Task 8.2: Opt-in real-CLI integration
+- **Status:** done
+- **Done when:** test passes manually at least once; failure modes documented. ✅
+- **Real-CLI result:** all 9 tests pass against live claude / codex / gemini / vibe on this machine; JSON extraction works against every CLI's actual stdout.
+
+### Task 8.3: Manual smoke test on real Scarecrow session
+- **Status:** deferred (manual hardware verification required)
+- **Done when:** manual run produces a coherent report.md; observed issues filed in HISTORY.md follow-ups.
+- **Reason for deferral:** requires a real or saved Scarecrow recording. To be run before tagging v0.1.
+
+### Task 8.5.1: Scarecrow event-type contract test
+- **Status:** done
+- **Done when:** contract test passes; README minimum-version note (`scarecrow >= 1.5.0`) already present. ✅
+- **Drift status:** perfect alignment — 13 documented events, 13 known events.
+
+Phase 8 verification: 324 fast tests + 2 e2e + 9 integration + 5 Scarecrow-contract all green; ruff/format/vulture clean.
