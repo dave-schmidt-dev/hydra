@@ -21,8 +21,30 @@ cadence_seconds = 15
 window_seconds = 30
 auto_fire_threshold = 0.7
 suggest_floor = 0.4
-# "local-gemma" or "claude:claude-haiku-4-5"
-model = "local-gemma"
+# Default is the cloud Haiku model (PM-1 — zero GPU contention with Scarecrow's
+# Parakeet). To switch to local Gemma 4 via mlx-vlm AFTER running
+# scripts/perf_test_local_watcher.py and confirming no audio drops, set this
+# to "local-mlx:mlx-community/gemma-3-4b-it-4bit" (or your preferred MLX path).
+model = "claude:claude-haiku-4-5"
+
+# Optional: override the model registry. Defaults from hydra/models.py.
+# Use the long form (an array of tables) for fast/heavy tiers; short form
+# (primary/fallback) for the watcher tier.
+#
+# [defaults.models.watcher]
+# primary = "claude:claude-haiku-4-5"
+# fallback = "codex:gpt-5.4-mini"
+#
+# [[defaults.models.fast]]
+# cli = "claude"
+# model = "claude-haiku-4-5"
+# hard_timeout_s = 60.0
+#
+# [[defaults.models.heavy]]
+# cli = "codex"
+# model = "gpt-5.5"
+# effort_flag = "--effort high"
+# hard_timeout_s = 300.0
 
 [defaults.research]
 # "single" or "parallel_if_quota"

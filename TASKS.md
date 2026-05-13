@@ -75,3 +75,22 @@ Status key: pending | in progress | done | blocked
 - **Done when:** `hydra start --session <fixture>` prints transcript events to stdout; each verb resolves to its handler (stubs return exit 1 + "not yet implemented"); session-end robustness tests pass. ✅
 
 Phase 1 verification: 100 tests pass in 7.16s; ruff/format/vulture clean.
+
+## [2026-05-13] — Phase 2 implementation session
+
+### Task 2.1: Model registry
+- **Status:** done
+- **Done when:** `MODEL_TIERS` shape matches plan Section 4.3; tier-completeness test passes; config-toml override populates correctly. ✅
+- **Side effect:** flipped `config.example.toml` watcher default from `local-gemma` to `claude:claude-haiku-4-5` per PM-1.
+
+### Task 2.2: Watcher loop
+- **Status:** done
+- **Done when:** dedup tests (auto/suggested bands, char-Jaccard ≥0.5, substring overlap, window expiry) all pass; failure-surfacing tests (immediate banner, 2-in-30s fallback, success resets) all pass. ✅
+- **Notes:** model_invoker / on_flag / on_banner / next_q_id / clock are all injected for deterministic tests. Production wiring lands in Phase 4.
+
+### Task 2.3: Local Gemma perf-test
+- **Status:** deferred (skeleton committed)
+- **Done when:** manual run produces a report.json against a real Scarecrow session and HISTORY.md records PASS or FAIL. ❌ (manual hardware verification required)
+- **Reason for deferral:** the script requires Scarecrow's Parakeet pipeline running concurrently with mlx-vlm Gemma. Cannot be verified in this implementation session. The watcher's cloud-Haiku default per PM-1 stays in place until a documented PASS arrives.
+
+Phase 2 verification: 140 tests pass in 11.31s; ruff/format/vulture clean.
