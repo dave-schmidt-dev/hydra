@@ -174,3 +174,31 @@ Phase 7 verification: 319 tests pass in 12.60s; ruff/format/vulture clean.
 - **Drift status:** perfect alignment — 13 documented events, 13 known events.
 
 Phase 8 verification: 324 fast tests + 2 e2e + 9 integration + 5 Scarecrow-contract all green; ruff/format/vulture clean.
+
+## [2026-05-13] — Phase 9 + Phase 10 closure
+
+### Phase 9.1: Scarecrow /hydra slash command PR
+- **Status:** deferred (separate Scarecrow-repo PR)
+- **Reason:** changes `~/Documents/Projects/Scarecrow/` and ships as a Scarecrow release; not in this repo's scope. Plan Section 8 captures the patch shape.
+
+### Phase 9.2: Cross-project documentation
+- **Status:** done on the Hydra side (README already documents the alias pattern + slash command)
+- **Reason:** Scarecrow-side README updates land with the Phase 9.1 PR.
+
+### Phase 10.1: Real-CLI regression sweep
+- **Status:** done (covered by Phase 8.2's opt-in integration suite — 9/9 pass).
+
+### Phase 10.2: Performance profiling
+- **Status:** deferred (manual hardware verification required)
+- **Reason:** needs real workloads (large Obsidian vault, 20-question SSE burst, sustained watcher load). To run before tagging v0.1.
+
+### Phase 10.3: Final documentation pass
+- **Status:** done (README scrubbed of internal plan paths and stale watcher description; HISTORY has per-phase entries; TASKS lists every task with explicit status).
+
+## v0.1 tagging gate
+
+The four explicitly-deferred items below must be completed before tagging:
+- **Task 2.3** — local-Gemma perf-test against a real Scarecrow + Parakeet + mlx-vlm load. Script is in place.
+- **Task 8.3** — manual smoke test on a real or saved Scarecrow recording.
+- **Task 9.1** — `/hydra` slash command PR to the Scarecrow repo.
+- **Task 10.2** — performance profiling sweep.

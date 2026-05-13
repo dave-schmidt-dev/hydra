@@ -111,3 +111,15 @@ Test inventory grew by 16: report writer happy-path + empty meeting + missing co
 - **Lint nits** — Task 8.2's file initially had unused imports + RUF059 unpacked-but-unused tuple positions; fixed in place (`_out`/`_err` prefixes; one docstring shortened to fit 88 cols).
 
 Test inventory grew by 16: e2e (2) + integration (9, opt-in, not in fast count) + Scarecrow contract (5) = **324 passing in 12.74s + 2 e2e in 0.65s + 9 integration in 34.66s**. Cross-language total: 339 (324 fast Python + 2 e2e Python + 9 integration Python + 4 Playwright specs configured but the 6-test physical count from Phase 6 still applies).
+
+### Phase 9 + Phase 10 — closure and deferrals
+
+- **Phase 9.1 — DEFERRED** (Scarecrow `/hydra` slash command PR). Lives in `~/Documents/Projects/Scarecrow/`, not this repo; the patch shape and rationale are captured in plan Section 8 (command-interception path, no CLI flag). To be implemented as a separate PR to Scarecrow before tagging Hydra v0.1.
+- **Phase 9.2 — DONE on the Hydra side**. The Hydra README already documents the user-composed alias pattern (`alias sch='sc; hydra start --wait-for-session 30 &'`) and the `/hydra` slash command path. The Scarecrow-side README/HISTORY updates ship with the Phase 9.1 PR.
+- **Phase 10.1 — Covered by Phase 8.2**. The opt-in integration suite (`bash scripts/run_test_suite.sh --integration`) currently passes against all four real CLIs (claude / codex / gemini / vibe). No CLI noise-pattern updates needed.
+- **Phase 10.2 — DEFERRED** (performance profiling: watcher latency, indexer throughput on a 50k-file vault, SSE under 20-question burst). Requires real workloads on real hardware; tracked in TASKS.md.
+- **Phase 10.3 — DONE**. README scrubbed of internal plan paths and stale watcher description (cleanup performed mid-session at user request); HISTORY has per-phase entries; TASKS lists every completed task plus the four explicitly-deferred items (2.3 local-Gemma perf-test, 8.3 manual Scarecrow smoke, 9.1 Scarecrow patch PR, 10.2 perf profiling).
+
+### Final state at end of implementation session
+
+Cross-language test surface: **324 fast Python + 2 e2e Python + 9 opt-in integration Python + 5 Scarecrow contract Python (also opt-in via SCARECROW path) + 6 Playwright specs = 346 tests, all green.** Lint + format + vulture clean. 8 phase-boundary commits pushed to `main`. Outstanding work before v0.1 tagging is captured in TASKS.md as explicit deferrals; nothing in the core pipeline is missing.
