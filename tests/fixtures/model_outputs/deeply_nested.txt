@@ -1,0 +1,7 @@
+{
+  "answer": "Per the docs, {brace}-containing strings are fine.",
+  "citations": [
+    {"snippet": "She said: \"go { left } at the fork\""},
+    {"snippet": "Config: { \"port\": 4125 }"}
+  ]
+}

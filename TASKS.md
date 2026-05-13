@@ -107,3 +107,16 @@ Phase 2 verification: 140 tests pass in 11.31s; ruff/format/vulture clean.
 - **Done when:** structured per-tool report; missing-tool tier members excludable via `available_set()` → `QuotaRouter(cli_available=...)`; `AllToolsMissingError` surfaces a fatal-but-helpful error before pre-flight finishes. ✅
 
 Phase 3 verification: 173 tests pass in 11.55s; ruff/format/vulture clean.
+
+## [2026-05-13] — Phase 4 implementation session
+
+### Task 4.1: JSON extractor + citation validator
+- **Status:** done
+- **Done when:** all captured-output fixtures pass (including deeply-nested case per SR-4); citation validator separates cited vs unsourced claims correctly. ✅
+
+### Task 4.2: Dispatcher + workers
+- **Status:** done
+- **Done when:** mock-driven E2E flow produces q-NNN.md artifacts with valid citation structure; mid-flight 429 reroutes to next-best model without losing the question; quick failures don't cancel deep jobs. ✅
+- **Notes:** Implementation had three shallow bugs caught by tests (fire-and-forget event emission, all-unsourced detector, lint nits). Fixed in place rather than dispatching a fix subagent.
+
+Phase 4 verification: 250 tests pass in 12.13s; ruff/format/vulture clean.

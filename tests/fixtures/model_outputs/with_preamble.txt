@@ -1,0 +1,3 @@
+Here is the JSON you requested:
+
+{"answer": "Bar is also true.", "citations": [{"id": 1, "source_type": "web", "url": "https://example.com", "quoted_snippet": "bar"}]}

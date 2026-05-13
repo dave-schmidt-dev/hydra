@@ -1,0 +1,3 @@
+<tool_use id="tu_1" name="search">{"query": "hydra docs", "limit": 5}</tool_use>
+
+[{"id": 1, "title": "Hydra README"}, {"id": 2, "title": "Hydra HISTORY"}]
