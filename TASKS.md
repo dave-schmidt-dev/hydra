@@ -128,3 +128,17 @@ Phase 4 verification: 250 tests pass in 12.13s; ruff/format/vulture clean.
 - **Done when:** small fixture corpus → queryable index; second run with one touched file re-indexes only that file; all skip rules verified (.git, node_modules, .venv, __pycache__, .obsidian, .DS_Store, plus .pytest_cache/.ruff_cache/.mypy_cache defensive additions). ✅
 
 Phase 5 verification: 274 tests pass in 12.20s; ruff/format/vulture clean.
+
+## [2026-05-13] — Phase 6 implementation session
+
+### Task 6.1: FastAPI app + templates
+- **Status:** done
+- **Done when:** full pre-flight → live → review flow runs against stubbed dispatcher/indexer; ephemeral-port fallback (PM-9) verified after 10 sequential bind attempts. ✅
+
+### Task 6.2: Playwright UI suite + config
+- **Status:** done
+- **Done when:** Playwright HTML report renders; all four spec files pass against the mocked workers. ✅
+- **Notes:** Subagent hit pnpm/npm sandbox restriction; stepped in directly to run pnpm install + playwright install chromium + the suite. 6/6 specs passing.
+- **Integration:** `_serve_web()` now lives in `hydra/__main__.py` and wires the full stack (QuotaRouter + Dispatcher + Indexer + TranscriptTailer + uvicorn). `HYDRA_MOCK_CLIS=1` monkey-patches `worker.run_research_job` for UI dev.
+
+Phase 6 verification: 303 Python tests + 6 Playwright specs all green; ruff/format/vulture clean.

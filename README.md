@@ -4,11 +4,7 @@ Real-time research agent companion for [Scarecrow](https://github.com/dlschmidt/
 
 While Scarecrow records and transcribes a meeting, Hydra listens to the transcript stream, flags open questions and discussion-worthy topics, dispatches LLM-backed research agents (`claude -p`, `codex exec`, `gemini -p`) to investigate using a local corpus and the internet, and presents draft + refined answers in a local web UI with strict citation discipline. When the session ends, Hydra produces a Markdown report covering questions raised, findings, and suggested directions.
 
-**Status:** v0.1 scaffold complete; warp-tier plan reviewed and refined (3 reviewers + pre-mortem). Implementation begins from Phase 1 (state store + tailer + recording-integrity gate).
-
-**Plan:** `~/Documents/Projects/.plans/hydra/hydra-2026-05-13.md`
-**Task breakdown:** `~/Documents/Projects/.plans/hydra/hydra-2026-05-13-tasks.md`
-**Synthesis:** `~/Documents/Projects/.plans/hydra/hydra-2026-05-13-synthesis.md`
+**Status:** v0.1 in development. Core pipeline is wired (state store, tailer, watcher, quota-aware dispatcher, BM25 indexer, FastAPI web UI) and exercised by ~300 tests; the post-session report writer and the `/hydra` Scarecrow integration are the remaining work before tagging.
 
 ## Requirements
 
@@ -23,7 +19,7 @@ While Scarecrow records and transcribes a meeting, Hydra listens to the transcri
 ## Setup
 
 ```bash
-git clone <repo-url> && cd hydra
+git clone https://github.com/dave-schmidt-dev/hydra.git && cd hydra
 uv sync
 cp config.example.toml config.toml   # then edit
 ```
@@ -38,7 +34,7 @@ hydra start --session PATH  # explicit session
 hydra start --port 4125     # web UI port (default 4125)
 ```
 
-Or, from a running Scarecrow TUI, type `/hydra` in the notes pane (requires Scarecrow ≥ 1.5.0 with the `/hydra` slash-command patch from Phase 9 of the plan).
+Or, from a running Scarecrow TUI, type `/hydra` in the notes pane (requires Scarecrow ≥ 1.5.0 with the `/hydra` slash command, shipped as a separate Scarecrow PR).
 
 Or compose a single-command shell alias that launches both:
 
@@ -52,15 +48,15 @@ When Hydra starts, it opens `http://localhost:4125` in your default browser for 
 
 ## Architecture
 
-See `~/Documents/Projects/.plans/hydra/hydra-2026-05-13.md` for the full design (plans live outside the repo per Dave's plan convention). High-level:
+High-level:
 
-- **Tailer** — follows Scarecrow's `transcript.jsonl`
-- **Watcher** — local Gemma reads rolling window, emits flagged questions
-- **Quota router** — uses `ai_monitor` to pick the model with the most remaining quota
-- **Dispatcher + workers** — subprocess-dispatched `claude -p` / `codex exec` / `gemini -p` for research
-- **Indexer** — SQLite FTS5 over corpus paths (Obsidian vault, recordings, per-meeting attachments)
-- **Web UI** — FastAPI + htmx + SSE on `127.0.0.1:4125`
-- **Report writer** — post-session synthesis to `report.md`
+- **Tailer** — follows Scarecrow's `transcript.jsonl` via `watchdog` with a polling fallback.
+- **Watcher** — rolling 30-second window over a cloud Haiku model by default; opt-in local mlx-vlm Gemma after the perf-test gate confirms it doesn't disrupt Scarecrow's audio pipeline.
+- **Quota router** — wraps `ai_monitor` via subprocess to pick the provider with the most remaining quota; per-provider 60s blacklist for mid-flight 429s; round-robin fallback when the snapshot is unavailable.
+- **Dispatcher + workers** — `claude -p` / `codex exec` / `gemini -p` / `vibe -p` spawned in their own process group with hard timeouts; mid-flight 429 reroutes within a tier; the heavy tier auto-retries once on timeout.
+- **Indexer** — SQLite FTS5 over corpus paths (Obsidian vault, recordings, per-meeting attachments) with incremental mtime caching.
+- **Web UI** — FastAPI + htmx + SSE on `127.0.0.1:4125` with an ephemeral-port fallback after ten busy candidates.
+- **Report writer** — post-session synthesis to `report.md` with full citation preservation; optional copy into a configured Obsidian vault.
 
 ## Development
 

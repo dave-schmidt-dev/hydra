@@ -5,15 +5,67 @@ from __future__ import annotations
 import argparse
 import asyncio
 import contextlib
+import logging
 import os
 import sys
 from pathlib import Path
 
 from hydra import probe, state, subprocess_runner
-from hydra.tailer import TranscriptTailer
 
 DEFAULT_RECORDINGS_ROOT = Path.home() / "recordings"
 DEFAULT_PORT = 4125
+
+logger = logging.getLogger("hydra.cli")
+
+
+def _maybe_install_mock_cli_hook() -> None:
+    # WHY HYDRA_MOCK_CLIS=1 bypasses real LLM CLIs for UI dev + Playwright e2e.
+    if os.environ.get("HYDRA_MOCK_CLIS") != "1":
+        return
+
+    import time
+
+    from hydra import citations, worker
+
+    async def _mock_run_job(job, *, quota_router, on_event=None, **_kwargs):
+        await asyncio.sleep(0.05)
+        job.status = "done"
+        started = job.started_at if job.started_at is not None else time.monotonic()
+        job.started_at = started
+        job.completed_at = started + 0.05
+        job.duration_s = 0.05
+        tier_specs = quota_router.tiers[job.tier]
+        model_spec = tier_specs[0]
+        job.model_spec = model_spec
+        validated = citations.ValidatedAnswer(
+            answer=f"Mock answer for {job.flag.topic} [1].",
+            citations=[
+                citations.Citation(
+                    id=1,
+                    source_type="web",
+                    url="https://mock.example.com",
+                    quoted_snippet="mock snippet",
+                )
+            ],
+            unsourced_claims=[],
+        )
+        job.artifact_path = worker._write_artifact(
+            job.session_dir,
+            job.q_id,
+            validated,
+            model_spec,
+            job.flag,
+        )
+        try:
+            state.set_question_status(job.session_dir, q_id=job.q_id, status="answered")
+        except Exception:
+            logger.debug("mock CLI: set_question_status failed", exc_info=True)
+        if on_event is not None:
+            with contextlib.suppress(Exception):
+                await on_event(worker.WorkerEvent(type="job_succeeded", job=job))
+        return job
+
+    worker.run_research_job = _mock_run_job
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -71,26 +123,65 @@ def _resolve_session(args: argparse.Namespace) -> probe.ProbeResult:
     return probe.find_live_session(args.recordings_root, explicit=args.session)
 
 
-async def _run_start(session_dir: Path) -> None:
+async def _serve_web(session_dir: Path, port: int) -> None:
+    """Wire HydraApp + dispatcher + tailer and serve uvicorn on ``port``.
+
+    Phase 6.2 web-server bootstrap: launches the FastAPI app via ``uvicorn`` so
+    the Playwright suite (and humans) can drive the UI. The dispatcher and
+    tailer are wired in so the routes are functionally complete; the watcher
+    is intentionally NOT started here because it requires a working LLM CLI —
+    HYDRA_MOCK_CLIS only stubs ``worker.run_research_job``, not the watcher
+    invoker.
+    """
+    import uvicorn
+
+    from hydra import dispatcher, indexer, quota, tailer
+    from hydra.web import HydraApp, build_app
+
+    quota_router = quota.QuotaRouter()
+    dispatcher_inst = dispatcher.Dispatcher(
+        quota_router=quota_router,
+        session_dir=session_dir,
+    )
+    indexer_inst = indexer.Indexer()
     transcript_path = session_dir / "transcript.jsonl"
-    tailer = TranscriptTailer(transcript_path, session_dir=session_dir)
-    run_task = asyncio.create_task(tailer.run())
+    tailer_inst = tailer.TranscriptTailer(transcript_path, session_dir=session_dir)
+
+    hydra_app = HydraApp(
+        session_dir=session_dir,
+        quota_router=quota_router,
+        dispatcher_inst=dispatcher_inst,
+        indexer_inst=indexer_inst,
+        tailer_inst=tailer_inst,
+    )
+    app = build_app(hydra_app)
+
+    config = uvicorn.Config(
+        app,
+        host="127.0.0.1",
+        port=port,
+        log_level="warning",
+        access_log=False,
+        lifespan="off",
+    )
+    server = uvicorn.Server(config)
+    print(f"hydra web: serving on http://127.0.0.1:{port}/", flush=True)
     try:
-        while not run_task.done():
-            try:
-                event = await asyncio.wait_for(tailer.queue.get(), timeout=0.25)
-            except TimeoutError:
-                continue
-            print(event, flush=True)
-    except (KeyboardInterrupt, asyncio.CancelledError):
-        pass
+        await server.serve()
     finally:
-        tailer.stop()
-        with contextlib.suppress(Exception):
-            await asyncio.wait_for(run_task, timeout=2.0)
+        if hydra_app.dispatcher_task is not None:
+            hydra_app.dispatcher_task.cancel()
+            with contextlib.suppress(asyncio.CancelledError, Exception):
+                await hydra_app.dispatcher_task
+        if hydra_app.indexer_task is not None:
+            hydra_app.indexer_task.cancel()
+            with contextlib.suppress(asyncio.CancelledError, Exception):
+                await hydra_app.indexer_task
 
 
 def cmd_start(args: argparse.Namespace) -> int:
+    _maybe_install_mock_cli_hook()
+
     try:
         result = _resolve_session(args)
     except probe.NoLiveSessionError as exc:
@@ -104,9 +195,6 @@ def cmd_start(args: argparse.Namespace) -> int:
     state.init_session_db(result.session_dir)
 
     if args.background:
-        # Fork AFTER the probe so the user sees the confirmation message
-        # synchronously; the child inherits the resolved session dir and runs
-        # the asyncio loop. asyncio has not yet been started in this process.
         pid = os.fork()
         if pid > 0:
             print(f"hydra started in background (pid={pid})", flush=True)
@@ -120,7 +208,7 @@ def cmd_start(args: argparse.Namespace) -> int:
 
     subprocess_runner.install_handlers_once()
     with contextlib.suppress(KeyboardInterrupt):
-        asyncio.run(_run_start(result.session_dir))
+        asyncio.run(_serve_web(result.session_dir, args.port))
     return 0
 
 

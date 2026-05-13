@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hydra - Review</title>
+  <script src="https://unpkg.com/htmx.org@2.0.3" integrity="sha384-0895/pl2MU10Hqc6jd4RvrAumzVZCmAbZ8rZNGsLBy8sb46s3yA8KGn/sFm6V2VyT" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="/static/hydra.css">
+</head>
+<body class="theme-dark">
+  <main class="container">
+    <header class="row between">
+      <h1>Hydra - review</h1>
+      <form method="post" action="/finalize" class="inline">
+        <button type="submit">Re-generate report</button>
+      </form>
+    </header>
+
+    <section id="questions">
+      <h2>Questions</h2>
+      <table class="review-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Topic</th>
+            <th>Status</th>
+            <th>In report</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for q in questions %}
+          <tr>
+            <td>{{ q.q_id }}</td>
+            <td>{{ q.topic }}</td>
+            <td>{{ q.status }}</td>
+            <td>{{ "yes" if q.in_report else "no" }}</td>
+            <td>{{ q.user_notes or "" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <section id="export">
+      <h2>Export</h2>
+      <form method="post" action="/export">
+        <label>
+          Destination path
+          <input type="text" name="destination" required placeholder="/path/to/vault/Meetings/report.md">
+        </label>
+        <button type="submit">Export</button>
+      </form>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "meeting_about": "Enterprise contract renewal review",
+  "participants": [
+    "Alice",
+    "Bob"
+  ],
+  "corpus_paths": [
+    "/tmp/hydra-ui-corpus"
+  ],
+  "obsidian_export_dir": null
+}

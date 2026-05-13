@@ -8,6 +8,7 @@ PYTEST="$ROOT/.venv/bin/pytest"
 cd "$ROOT"
 
 MODE="default"
+RUN_UI=0
 PYTEST_ARGS=()
 for arg in "$@"; do
   case "$arg" in
@@ -23,6 +24,9 @@ for arg in "$@"; do
       MODE="e2e"
       PYTEST_ARGS+=(-m "e2e")
       ;;
+    --ui)
+      RUN_UI=1
+      ;;
     *)
       PYTEST_ARGS+=("$arg")
       ;;
@@ -34,5 +38,10 @@ if [[ ! -x "$PYTEST" ]]; then
   exit 1
 fi
 
-echo "Running tests in mode: $MODE"
-exec "$PYTEST" "${PYTEST_ARGS[@]}"
+echo "Running Python tests in mode: $MODE"
+"$PYTEST" "${PYTEST_ARGS[@]}"
+
+if [[ "$RUN_UI" -eq 1 ]]; then
+  echo "Running Playwright UI tests"
+  pnpm --dir ui_tests test
+fi

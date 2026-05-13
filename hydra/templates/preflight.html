@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hydra - Pre-flight</title>
+  <script src="https://unpkg.com/htmx.org@2.0.3" integrity="sha384-0895/pl2MU10Hqc6jd4RvrAumzVZCmAbZ8rZNGsLBy8sb46s3yA8KGn/sFm6V2VyT" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="/static/hydra.css">
+</head>
+<body class="theme-dark">
+  <main class="container">
+    <h1>Hydra pre-flight</h1>
+    <p class="muted">Configure the session before live research starts.</p>
+    <form method="post" action="/preflight">
+      <label>
+        Meeting about
+        <textarea name="meeting_about" rows="3" required placeholder="What is this meeting about?"></textarea>
+      </label>
+      <label>
+        Participants (comma-separated)
+        <input type="text" name="participants" placeholder="Alice, Bob">
+      </label>
+      <label>
+        Corpus paths (one per line)
+        <textarea name="corpus_paths" rows="4" placeholder="/path/to/notes&#10;/path/to/docs"></textarea>
+      </label>
+      <label>
+        Obsidian export dir (optional)
+        <input type="text" name="obsidian_export_dir" placeholder="/path/to/vault/Meetings">
+      </label>
+      <button type="submit">Start session</button>
+    </form>
+  </main>
+</body>
+</html>
