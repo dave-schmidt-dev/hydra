@@ -94,3 +94,16 @@ Phase 1 verification: 100 tests pass in 7.16s; ruff/format/vulture clean.
 - **Reason for deferral:** the script requires Scarecrow's Parakeet pipeline running concurrently with mlx-vlm Gemma. Cannot be verified in this implementation session. The watcher's cloud-Haiku default per PM-1 stays in place until a documented PASS arrives.
 
 Phase 2 verification: 140 tests pass in 11.31s; ruff/format/vulture clean.
+
+## [2026-05-13] — Phase 3 implementation session
+
+### Task 3.1: ai_monitor subprocess wrapper + schema
+- **Status:** done
+- **Done when:** router picks the expected model per tier across snapshot fixtures; blacklist routes correctly and expires after 60s; all-low banner fires; subprocess failure / schema mismatch fall back to round-robin with single-event emission. ✅
+- **Notes:** Pydantic schema modeled against ai_monitor's actual --json output (read from ~/Documents/Projects/ai_monitor); Vibe's usage_percent inverted; capitalized→lowercase provider name mapping.
+
+### Task 3.2: CLI tool availability check
+- **Status:** done
+- **Done when:** structured per-tool report; missing-tool tier members excludable via `available_set()` → `QuotaRouter(cli_available=...)`; `AllToolsMissingError` surfaces a fatal-but-helpful error before pre-flight finishes. ✅
+
+Phase 3 verification: 173 tests pass in 11.55s; ruff/format/vulture clean.
