@@ -142,3 +142,12 @@ Phase 5 verification: 274 tests pass in 12.20s; ruff/format/vulture clean.
 - **Integration:** `_serve_web()` now lives in `hydra/__main__.py` and wires the full stack (QuotaRouter + Dispatcher + Indexer + TranscriptTailer + uvicorn). `HYDRA_MOCK_CLIS=1` monkey-patches `worker.run_research_job` for UI dev.
 
 Phase 6 verification: 303 Python tests + 6 Playwright specs all green; ruff/format/vulture clean.
+
+## [2026-05-13] — Phase 7 implementation session
+
+### Task 7.1: Report synthesis
+- **Status:** done
+- **Done when:** fixture session with N answered questions produces a report.md with all expected sections + preserved citations; pruning (in_report=0) excludes questions from the synthesis prompt and output. ✅
+- **Notes:** writes both report.md and report.generated.md; failure modes (timeout/nonzero/empty) preserve report.generated.md and write a placeholder report.md. Obsidian export with YAML frontmatter when configured.
+
+Phase 7 verification: 319 tests pass in 12.60s; ruff/format/vulture clean.
