@@ -13,7 +13,7 @@ While Scarecrow records and transcribes a meeting, Hydra listens to the transcri
 - [uv](https://docs.astral.sh/uv/)
 - An active Scarecrow session (Hydra refuses to start otherwise)
 - Authenticated CLIs: `claude`, `codex`, `gemini`, `vibe` (pre-flight check verifies availability; missing tools are excluded from the model pool, Hydra still launches with whatever is available)
-- [ai_monitor](https://github.com/dlschmidt/ai_monitor) installed on the same machine — invoked via subprocess (`python3 -m ai_monitor --json --once`), NOT imported. Not a Python dependency of this package.
+- [gradus](https://github.com/dave-schmidt-dev/gradus) installed on the same machine — invoked via subprocess (`python3 -m gradus --json --once`), NOT imported. Not a Python dependency of this package.
 - [Scarecrow](https://github.com/dlschmidt/scarecrow) >= 1.5.0 — Hydra reads its `transcript.jsonl` stream
 
 ## Setup
@@ -52,7 +52,7 @@ High-level:
 
 - **Tailer** — follows Scarecrow's `transcript.jsonl` via `watchdog` with a polling fallback.
 - **Watcher** — rolling 30-second window over a cloud Haiku model by default; opt-in local mlx-vlm Gemma after the perf-test gate confirms it doesn't disrupt Scarecrow's audio pipeline.
-- **Quota router** — wraps `ai_monitor` via subprocess to pick the provider with the most remaining quota; per-provider 60s blacklist for mid-flight 429s; round-robin fallback when the snapshot is unavailable.
+- **Quota router** — wraps `gradus` via subprocess to pick the provider with the most remaining quota; per-provider 60s blacklist for mid-flight 429s; round-robin fallback when the snapshot is unavailable.
 - **Dispatcher + workers** — `claude -p` / `codex exec` / `gemini -p` / `vibe -p` spawned in their own process group with hard timeouts; mid-flight 429 reroutes within a tier; the heavy tier auto-retries once on timeout.
 - **Indexer** — SQLite FTS5 over corpus paths (Obsidian vault, recordings, per-meeting attachments) with incremental mtime caching.
 - **Web UI** — FastAPI + htmx + SSE on `127.0.0.1:4125` with an ephemeral-port fallback after ten busy candidates.

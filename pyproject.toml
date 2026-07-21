@@ -15,7 +15,7 @@ dependencies = [
     "pydantic-settings>=2.6",
     "mlx-vlm>=0.4",
 ]
-# ai_monitor is invoked via subprocess (`python3 -m ai_monitor --json --once`),
+# gradus is invoked via subprocess (`python3 -m gradus --json --once`),
 # not imported. It must be installed separately on the user's machine; it is
 # not a Python dependency of this package.
 

@@ -1,8 +1,8 @@
 """Tests for the quota router (Phase 3.1).
 
-The router wraps ai_monitor as a subprocess, caches snapshots, blacklists
+The router wraps gradus as a subprocess, caches snapshots, blacklists
 providers on 429s, and routes per tier by picking the candidate with the
-highest *shortest-window* remaining percentage. When ai_monitor errors
+highest *shortest-window* remaining percentage. When gradus errors
 or its schema doesn't validate, the router round-robins among candidates.
 """
 
@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 
 import pytest
 
-from hydra.ai_monitor_schema import AiMonitorSnapshot
+from hydra.gradus_schema import GradusSnapshot
 from hydra.quota import (
     BLACKLIST_SECONDS,
     CACHE_TTL_SECONDS,
@@ -63,7 +63,7 @@ def make_router(
 
 
 def make_snapshot_dict(providers_pct: dict[str, list[float]]) -> dict:
-    """Build a snapshot dict mimicking ai_monitor's --json output.
+    """Build a snapshot dict mimicking gradus's --json output.
 
     providers_pct maps provider name (Capitalized) to a list of
     remaining-percent values, one per window.
@@ -103,7 +103,7 @@ def make_snapshot_dict(providers_pct: dict[str, list[float]]) -> dict:
                 "account_tier": None,
             }
         elif name == "Vibe":
-            # ai_monitor reports % USED; remaining = 100 - used.
+            # gradus reports % USED; remaining = 100 - used.
             data = {
                 "usage_percent": 100.0 - float(pcts[0]),
                 "reset_at": None,
@@ -227,7 +227,7 @@ def test_fetch_failure_round_robins_among_candidates() -> None:
     third = router.pick_model("fast")
 
     assert [first.cli, second.cli, third.cli] == ["claude", "codex", "gemini"]
-    assert "ai_monitor_unavailable" in events.types()
+    assert "gradus_unavailable" in events.types()
 
 
 def test_schema_mismatch_round_robins_and_emits_event() -> None:
@@ -348,9 +348,9 @@ def test_provider_with_error_treated_as_zero_remaining() -> None:
     assert chosen.cli == "codex"
 
 
-def test_ai_monitor_schema_parses_real_shape() -> None:
-    # Documents that the Pydantic schema accepts the actual ai_monitor
-    # --json structure (verified against ai_monitor/ui.py:render_json).
+def test_gradus_schema_parses_real_shape() -> None:
+    # Documents that the Pydantic schema accepts the actual gradus
+    # --json structure (verified against gradus/ui.py:render_json).
     raw = {
         "updated_at": "2026-05-13T08:00:00",
         "providers": [
@@ -375,13 +375,13 @@ def test_ai_monitor_schema_parses_real_shape() -> None:
         ],
     }
 
-    parsed = AiMonitorSnapshot.model_validate(raw)
+    parsed = GradusSnapshot.model_validate(raw)
 
     assert parsed.providers[0].name == "Claude"
     assert parsed.providers[0].shortest_window_remaining_pct == 41.0
 
 
-def test_ai_monitor_schema_vibe_uses_inverted_usage_percent() -> None:
+def test_gradus_schema_vibe_uses_inverted_usage_percent() -> None:
     raw = {
         "updated_at": "2026-05-13T08:00:00",
         "providers": [
@@ -402,7 +402,7 @@ def test_ai_monitor_schema_vibe_uses_inverted_usage_percent() -> None:
         ],
     }
 
-    parsed = AiMonitorSnapshot.model_validate(raw)
+    parsed = GradusSnapshot.model_validate(raw)
 
     assert parsed.providers[0].shortest_window_remaining_pct == pytest.approx(
         98.92, rel=1e-3
@@ -411,8 +411,8 @@ def test_ai_monitor_schema_vibe_uses_inverted_usage_percent() -> None:
 
 @pytest.mark.skipif(shutil.which("python3") is None, reason="python3 not on PATH")
 def test_default_fetch_smoke_runs_without_raising() -> None:
-    # End-to-end smoke: the default fetcher shells out to ai_monitor.
-    # We accept either a dict (ai_monitor installed) or None (not installed,
+    # End-to-end smoke: the default fetcher shells out to gradus.
+    # We accept either a dict (gradus installed) or None (not installed,
     # subprocess errored, or output unparseable) — both are valid outcomes.
     router = QuotaRouter()
     result = router._default_fetch()

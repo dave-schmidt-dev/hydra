@@ -1,10 +1,10 @@
-"""Pydantic schema for ai_monitor's --json output.
+"""Pydantic schema for gradus's --json output.
 
-Validated against ai_monitor/ui.py:render_json and ai_monitor/parsing.py.
+Validated against gradus/ui.py:render_json and gradus/parsing.py.
 The schema is intentionally permissive about provider-specific fields
 inside ``data`` — providers expose different percent-left keys depending
 on which window(s) they report — but strict about the envelope shape so
-that PM-7 (schema-mismatch fallback) triggers when ai_monitor's output
+that PM-7 (schema-mismatch fallback) triggers when gradus's output
 contract changes upstream.
 """
 
@@ -14,9 +14,9 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
-# WHY: ai_monitor emits provider names capitalized (Claude/Codex/Gemini/...),
+# WHY: gradus emits provider names capitalized (Claude/Codex/Gemini/...),
 # but hydra ModelSpec.cli is lowercase. The router does the case-fold mapping
-# at lookup time, not here, so this schema preserves ai_monitor's spelling.
+# at lookup time, not here, so this schema preserves gradus's spelling.
 _PROVIDER_PCT_KEYS: dict[str, tuple[str, ...]] = {
     "Claude": ("session_percent_left", "weekly_percent_left", "opus_percent_left"),
     "Codex": ("five_hour_percent_left", "weekly_percent_left"),
@@ -56,8 +56,8 @@ class ProviderEntry(BaseModel):
             if isinstance(raw, (int, float)):
                 values.append(float(raw))
 
-        # Vibe: ai_monitor reports usage_percent (% USED), not remaining.
-        # See ai_monitor README: "If Mistral shows 1.08% used, AI Monitor
+        # Vibe: gradus reports usage_percent (% USED), not remaining.
+        # See gradus README: "If Mistral shows 1.08% used, Gradus
         # will render about 99% remaining after rounding."
         if self.name == "Vibe":
             raw = self.data.get("usage_percent")
@@ -69,7 +69,7 @@ class ProviderEntry(BaseModel):
         return min(values)
 
 
-class AiMonitorSnapshot(BaseModel):
+class GradusSnapshot(BaseModel):
     model_config = ConfigDict(extra="allow")
 
     updated_at: str

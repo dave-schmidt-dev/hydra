@@ -1,12 +1,12 @@
-"""Quota router: pick the best model per tier given current ai_monitor data.
+"""Quota router: pick the best model per tier given current gradus data.
 
 Plan Section 4.5.3:
-  - Wrap ai_monitor as a subprocess (``python3 -m ai_monitor --json --once``).
+  - Wrap gradus as a subprocess (``python3 -m gradus --json --once``).
   - Cache snapshots for 60s to avoid hammering provider APIs.
   - Maintain a 60s per-provider blacklist driven by mid-flight 429s.
   - Route by *shortest-window* remaining percentage so that providers don't
     silently exhaust a longer window.
-  - When ai_monitor is unavailable or returns a schema we can't parse,
+  - When gradus is unavailable or returns a schema we can't parse,
     fall back to round-robin among the tier's candidates (PM-7).
 """
 
@@ -21,7 +21,7 @@ from dataclasses import dataclass, field
 
 from pydantic import ValidationError
 
-from hydra.ai_monitor_schema import AiMonitorSnapshot
+from hydra.gradus_schema import GradusSnapshot
 from hydra.models import ModelSpec, Tier, default_tiers
 
 logger = logging.getLogger("hydra.quota")
@@ -46,7 +46,7 @@ class QuotaRouter:
     clock: Callable[[], float] = time.monotonic
     on_event: Callable[[str, dict], None] | None = None
 
-    _cache: AiMonitorSnapshot | None = field(default=None, init=False, repr=False)
+    _cache: GradusSnapshot | None = field(default=None, init=False, repr=False)
     _cache_ts: float = field(default=0.0, init=False, repr=False)
     _cache_valid: bool = field(default=False, init=False, repr=False)
     _blacklist: dict[str, float] = field(default_factory=dict, init=False, repr=False)
@@ -98,21 +98,21 @@ class QuotaRouter:
         for name in expired:
             del self._blacklist[name]
 
-    def _get_snapshot(self) -> AiMonitorSnapshot | None:
+    def _get_snapshot(self) -> GradusSnapshot | None:
         now = self.clock()
         if self._cache_valid and (now - self._cache_ts) < self.cache_ttl_seconds:
             return self._cache
 
         raw = self._invoke_fetch()
         if raw is None:
-            self._emit_once("ai_monitor_unavailable", {})
+            self._emit_once("gradus_unavailable", {})
             self._cache = None
             self._cache_valid = False
             self._cache_ts = now
             return None
 
         try:
-            parsed = AiMonitorSnapshot.model_validate(raw)
+            parsed = GradusSnapshot.model_validate(raw)
         except ValidationError as exc:
             self._emit_once("schema_mismatch", {"error": str(exc)})
             self._cache = None
@@ -131,25 +131,25 @@ class QuotaRouter:
             return fetcher()
         except Exception as exc:
             logger.warning("quota router fetch raised: %s", exc)
-            self._emit_once("ai_monitor_unavailable", {"error": str(exc)})
+            self._emit_once("gradus_unavailable", {"error": str(exc)})
             return None
 
     def _default_fetch(self) -> dict | None:
         try:
             proc = subprocess.run(
-                ["python3", "-m", "ai_monitor", "--json", "--once"],
+                ["python3", "-m", "gradus", "--json", "--once"],
                 capture_output=True,
                 text=True,
                 timeout=FETCH_TIMEOUT_S,
                 check=False,
             )
         except (subprocess.TimeoutExpired, OSError) as exc:
-            self._emit_once("ai_monitor_unavailable", {"error": str(exc)})
+            self._emit_once("gradus_unavailable", {"error": str(exc)})
             return None
 
         if proc.returncode != 0:
             self._emit_once(
-                "ai_monitor_unavailable",
+                "gradus_unavailable",
                 {"returncode": proc.returncode, "stderr": proc.stderr[-500:]},
             )
             return None
@@ -157,14 +157,14 @@ class QuotaRouter:
         try:
             return json.loads(proc.stdout)
         except json.JSONDecodeError as exc:
-            self._emit_once("ai_monitor_unavailable", {"error": str(exc)})
+            self._emit_once("gradus_unavailable", {"error": str(exc)})
             return None
 
     def _pick_by_quota(
         self,
         tier: Tier,
         candidates: list[ModelSpec],
-        snapshot: AiMonitorSnapshot,
+        snapshot: GradusSnapshot,
     ) -> ModelSpec:
         entries = snapshot.by_provider_lower()
         scored: list[tuple[float, int, ModelSpec]] = []

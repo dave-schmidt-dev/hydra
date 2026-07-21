@@ -12,7 +12,7 @@ module is responsible for.
 
 DESIGN NOTE — subprocess limitation: this is a Python-level intercept.
 Subprocess writes are NOT covered. Python monkeypatches do not propagate
-across fork+exec to child processes, so ai_monitor's credential writes
+across fork+exec to child processes, so gradus's credential writes
 (which happen inside its own subprocess) are correctly invisible to this
 fixture (per plan pre-mortem PM-2). The fixture catches HYDRA in-process
 write violations only.
